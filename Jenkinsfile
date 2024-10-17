@@ -2,11 +2,17 @@ pipeline{
 
     agent any
     stages{
-            stage("Source"){
+
+            stage("Create Docker Build"){
               steps{
-              sh 'echo "hello world"'  
+                sh "sudo -su"
+                sh 'docker compose build'
               }
             }
-
+            stage("Run Docker Build"){
+              steps{
+                sh 'docker compose up'
+              }
+            }
     }
 }
