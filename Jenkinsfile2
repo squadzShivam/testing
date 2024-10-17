@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm ci
+                    ls -la
+                    npm run build
+                '''
+            }
+        }
+
+
+        stage('Load Environment Variables') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    echo "DATABASE_URL=${DATABASE_URL}" > .env
+                    echo "ACCESS_SECRET=${ACCESS_SECRET}" >> .env
+                    echo "REFRESH_SECRET=${REFRESH_SECRET}" >> .env
+                    echo "API_KEY=${API_KEY}" >> .env
+                    echo "AUTH_DOMAIN=${AUTH_DOMAIN}" >> .env
+                    echo "PROJECT_ID=${PROJECT_ID}" >> .env
+                    echo "STORAGE_BUCKET=${STORAGE_BUCKET}" >> .env
+                    echo "MESSAGING_SENDER_ID=${MESSAGING_SENDER_ID}" >> .env
+                    echo "APP_ID=${APP_ID}" >> .env
+                    echo "MEASUREMENT_ID=${MEASUREMENT_ID}" >> .env
+                    echo "PORT=${PORT}" >> .env
+                '''
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                script {
+                    def appImage = docker.build("${IMAGE_NAME}:${env.BUILD_ID}") // Customize image name
+                }
+            }
+        }
+        stage('Docker Run') {
+            steps {
+                script {
+                    docker.image("${IMAGE_NAME}:${env.BUILD_ID}").run("-d -p 4000:4000") // Adjust ports as necessary
+                }
+            }
+        }
+    }
+    // post {
+    //     always {
+    //         // Clean up Docker resources
+    //         sh 'docker system prune -f'
+    //     }
+    // }
+}

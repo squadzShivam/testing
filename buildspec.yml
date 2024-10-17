@@ -1,0 +1,50 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20 # Specify the Node.js version you need
+    commands:
+      - echo "Installing dependencies..."
+      - npm install
+      # - npm install -g firebase-tools
+
+  pre_build:
+    commands:
+      - npm install
+      - chmod +x ./scripts/create_config.sh
+      - sh ./scripts/create_config.sh
+      - echo config is created `date`
+
+  build:
+    commands:
+      - echo Build is started `date`
+      - npm run build
+      - echo Build is completed `date`
+      - echo installing production dependencies `date`
+      - rm -rf node_modules
+      - echo installing production dependencies completed `date`
+
+  post_build:
+    commands:
+      - echo "Post-build tasks..."
+      - echo "Preparing artifacts for deployment..."
+      - mkdir  temp
+      - cp -rv dist temp
+      - cp .env temp/
+      - cp -rv scripts temp
+      - cp -rv client temp
+      - cp -r appspec.yml temp/
+      - cp -r package.json temp/
+      - cp -r package-lock.json temp/
+      - cp -r tsconfig.json temp/
+      - cp -r tsconfig.build.json temp/
+      - cp -rv prisma temp/
+      - echo Copying files in temp is done
+  
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: no
+  base-directory: temp
