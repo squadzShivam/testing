@@ -10,7 +10,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start:debug": "nest start --debug --watch",
-    "start": "prisma generate && npx prisma migrate deploy && node dist/src/main",
+    "start": "prisma generate && npx prisma migrate resolve --applied 0_init && node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "firebase emulators:exec jest",
     "test:watch": "nest test --watch",
