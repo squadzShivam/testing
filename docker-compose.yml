@@ -1,6 +1,6 @@
 version: '3'
 services:
-  prasarBhartiBackend:
+  deploygroup:
     image: deploygroup
     build: .
     ports:
